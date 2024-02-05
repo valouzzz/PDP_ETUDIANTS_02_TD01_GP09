@@ -3,6 +3,16 @@
 #include <DHT.h>
 #include <DHT_U.h>
 
+#define BLYNK_TEMPLATE_ID "TMPL51-2e-XyR"
+#define BLYNK_TEMPLATE_NAME "tp2"
+#define BLYNK_AUTH_TOKEN "9M890876g5jUk-7B3d70tFVFhP9NqsH3"
+
+#include <WiFi.h>
+#include <WiFiClient.h>
+#include <BlynkSimpleEsp32.h>
+
+#define BLYNK_PRINT Serial
+
 // Define the pins that we will use
 #define SENSOR 33
 #define LED 26
@@ -14,7 +24,19 @@ DHT_Unified dht(SENSOR, DHTTYPE);
 // ...
 // ...
 // ...
+char ssid[] = "samsungval";
+char pass[] = "valentin";
 
+BLYNK_WRITE(V2)
+{
+  int pinValue = param.asInt(); // assigning incoming value from pin V0 to a variable
+  Serial.print("Received value from Blynk: ");
+  Serial.println(pinValue);
+  digitalWrite(LED,pinValue);
+  // Delay is only there so that we get a chance to see the LED value properly.
+  delay(1000);
+}
+  
 void setup() {
   // Setup pins
   pinMode(LED, OUTPUT);
@@ -25,9 +47,10 @@ void setup() {
   delay(100);
 
   // begin the Blynk session
-  // ...
-  // ...
-  // ...
+  Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);
+  Blynk.run();
+  Blynk.syncVirtual(V2);
+
 
   // Start listening to the DHT11
   dht.begin();
@@ -59,9 +82,9 @@ void setup() {
   }
 
   // Send data to Blynk
-  // ...
-  // ...
-  // ...
+  Blynk.virtualWrite (V0, relative_humidity_measure);
+  Blynk.virtualWrite (V1, temp_measure);
+  BLYNK_WRITE(V2);
 
   Serial.println("Going to sleep for 5 seconds...");
   delay(100);
